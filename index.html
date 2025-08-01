@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Khodam Iseng by Agas</title>
+    <style>
+        /* Mengimpor font dari Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        /* Variabel warna untuk kemudahan kustomisasi */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --success-color: #27ae60;
+            --whatsapp-color: #25D366;
+        }
+
+        /* Pengaturan dasar untuk body */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Gaya untuk pop-up overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .popup-card {
+            background: linear-gradient(135deg, var(--secondary-color), #8e44ad);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+            width: 90%;
+            max-width: 400px;
+            transform: scale(0.9);
+            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .popup-card h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .popup-card p {
+            font-size: 1.1em;
+            margin: 0 0 20px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .popup-card button {
+            background-color: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .popup-card button:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        /* Kontainer utama untuk aplikasi cek khodam */
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-section {
+            display: none;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .container > p {
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            color: #7f8c8d;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        #namaInput {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        #namaInput:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        button.cek-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button.cek-button:hover {
+            background-color: #2980b9;
+            transform: scale(1.02);
+        }
+
+        button.share-button {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: auto;
+            margin-top: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button.share-button:hover {
+            background-color: #229954;
+            transform: scale(1.02);
+        }
+        
+        /* Area untuk menampilkan hasil */
+        #hasil {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9f9;
+            border-radius: 8px;
+            border-left: 5px solid var(--secondary-color);
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: all 0.5s ease;
+        }
+        
+        #hasil.hidden {
+            display: none;
+        }
+
+        #hasil-teks {
+            font-size: 1.1em;
+        }
+
+        #nama-khodam {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 10px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Animasi Loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animasi untuk hasil */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Gaya untuk Khodam Terbaik dan Jelajahi Khodam */
+        .extra-features {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 450px;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+
+        #khodamTerbaik {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        #daftarKhodam ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 0;
+            padding-right: 10px;
+        }
+
+        #daftarKhodam li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        #daftarKhodam li:last-child {
+            border-bottom: none;
+        }
+
+        /* Gaya untuk tombol WhatsApp mengambang */
+        .whatsapp-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            background-color: var(--whatsapp-color);
+            color: white;
+            border-radius: 50px;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .whatsapp-button img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .whatsapp-text {
+            color: white;
+            font-weight: 600;
+            margin-left: 10px;
+            font-size: 1em;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .whatsapp-text.visible {
+            display: block;
+        }
+
+        /* Gaya untuk Credits */
+        .credit-footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="welcomePopup">
+        <div class="popup-card">
+            <h2>Halo!</h2>
+            <p>Selamat datang di Web Cek Khodam by Agas. Siap menemukan khodam iseng kamu?</p>
+            <button onclick="closePopup()">Mulai Sekarang!</button>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent">
+        <h1>Cek Khodam Iseng Kamu!</h1>
+        <p>Masukkan namamu untuk melihat entitas gaib yang mendampingimu.</p>
+        
+        <div class="input-group">
+            <input type="text" id="namaInput" placeholder="Ketik nama kamu di sini..." onkeydown="if(event.key === 'Enter') cekKhodam()">
+        </div>
+        
+        <button class="cek-button" onclick="cekKhodam()">CEK KHODAM</button>
+
+        <div id="hasil" class="hidden">
+        </div>
+    </div>
+
+    <div class="extra-features">
+        
+        <div class="feature-card">
+            <h2>Khodam Terbaik Hari Ini</h2>
+            <div id="khodamTerbaik"></div>
+        </div>
+
+        <div class="feature-card">
+            <h2>Jelajahi Khodam</h2>
+            <div id="daftarKhodam">
+                <ul></ul>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="whatsapp-button" onclick="toggleWhatsapp()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo">
+        <span id="whatsappText" class="whatsapp-text"></span>
+    </div>
+
+    <footer class="credit-footer">
+        Dibuat dengan iseng oleh Agas © 2025
+    </footer>
+
+    <script>
+        // Daftar khodam yang absurd dan lucu (Total 200)
+        const daftarKhodam = [
+            "Kursi Goyang", "Kipas Angin Cosmos", "Tutup Termos", "Gelas Kopi", "Sendal Jepit Swallow",
+            "Kucing Oren Barbar", "Wifi Tetangga", "Sinyal Edge", "Charger Tipe C", "Galon Le Minerale",
+            "Kunci Motor Beat", "Remote AC Rusak", "Cicak Dinding", "Laron Kesasar", "Botol Yakult",
+            "Rice Cooker Miyako", "Knalpot Brong", "Layangan Putus", "Batu Ginjal", "Anomali Cuaca",
+            "Komputer Spek Kentang", "Bungkus Gorengan", "Pendingin Ruangan", "Stop Kontak", "Gagang Pintu",
+            "Meja Belajar", "Asbak Penuh", "Kabel Data Kusut", "Tisu Basah", "Motor Astrea Grand",
+            "Naga Bonar", "Keyboard Menyala", "Mouse Gaming", "Sapu Ijuk", "Pengki Plastik",
+            "Kecoa Terbang", "Tikus Got", "Odading Mang Oleh", "Rawa Rontek", "Ajian Semar Mesem",
+            "Bakwan Jagung", "Cireng Isi", "Seblak Ceker", "Filter Instagram", "Akun Hode", "Elpiji 3kg",
+            "Malaikat Pencatat Diskon", "Jin Penunggu Promo", "Arwah Penasaran Voucher",
+            "Pintu Gerbang Tol", "Bemper Kiri Mobil", "Ban Serep Mobil", "Kulkas 2 Pintu",
+            "Tutup Minyak Rem", "Topi Ulang Tahun", "Peti Mati Kayu Jati", "Sandal Hilang Sebelah",
+            "Jaring Laba-laba", "Bayangan Hantu Pocong", "Baju Sisa Lebaran", "Penghapus Karet",
+            "Kotak Pensil", "Lampu Merah di Jalan", "Garis Markah Trotoar", "Ular Tangga",
+            "Botol Kecap Manis", "Tusuk Gigi", "Casing HP Retak", "Headset Bluetooth Rusak",
+            "Kabel Charger Putus", "Kabel Ties", "Tutup Botol Plastik", "Plastik Bungkus Roti",
+            "Gantungan Baju", "Kardus Indomie", "Keranjang Belanja", "Helm Ojol", "Jaket Jeans Robek",
+            "Kaos Kaki Bolong", "Korek Api Gas", "Mancis", "Koin Kuno", "Paku Karatan",
+            "Obat Nyamuk Bakar", "Kertas Latihan Soal", "Spidol Snowman", "Tinta Printer Habis",
+            "Sticker Kaca", "Lemari Es Penuh", "Gelas Pecah", "Piring Beling", "Sumpit Bambu",
+            "Tirai Jendela", "Jepitan Jemuran", "Gembok Pagar", "Jemuran Baju", "Wajan Gosong",
+            "Sikat Gigi Bekas", "Pasta Gigi Habis", "Sabun Batang Kecil", "Sampo Sachet",
+            "Gunting Kertas", "Penggaris Segitiga", "Pulpen Habis Tinta", "Rautan Pensil",
+            "Penghapus Hitam", "Buku Gambar", "Kalender Bekas", "Koran Bekas", "Majalah Bekas",
+            "Kartu Nama", "Kartu ATM Kadaluwarsa", "Kartu Diskon", "Kupon Belanja", "Struk Pembayaran",
+            "Kunci Loker", "Kunci Cadangan", "Peta Dunia", "Globe", "Buku Ensiklopedia",
+            "Kaca Mata Minus", "Lensa Kontak", "Air Mineral", "Air Galon", "Air Panas",
+            "Es Batu", "Es Krim Coklat", "Gorengan Sisa", "Cilok Pedas", "Kerupuk Kulit",
+            "Asinan Buah", "Rujak Buah", "Tahu Gejrot", "Bakso Tusuk", "Sate Ayam",
+            "Nasi Goreng", "Mie Ayam", "Ketoprak", "Gado-gado", "Soto Ayam",
+            "Rawon", "Coto Makassar", "Pempek Palembang", "Rendang Padang", "Sayur Asem",
+            "Capcay", "Fuyunghai", "Kue Cubit", "Kue Leker", "Terang Bulan",
+            "Pukis", "Roti Bakar", "Martabak Manis", "Martabak Telur", "Es Campur",
+            "Es Doger", "Jus Alpukat", "Jus Mangga", "Es Teh Manis", "Es Jeruk",
+            "Kopi Hitam", "Kopi Susu", "Teh Tarik", "Coklat Panas", "Susu Hangat",
+            "Indomie Goreng", "Indomie Kuah", "Mie Sedap", "Pop Mie", "Supermi",
+            "Chitato", "Lays", "Pota Bee", "Taro", "Jet-z", "Wafer Tango", "Nabati",
+            "Biskuit Roma", "Oreo", "Good Time", "Beng-Beng", "KitKat",
+            "SilverQueen", "Cadbury", "Kinder Joy", "Permen Yupi", "Permen Relaxa",
+            "Permen Kopiko", "Permen Kiss", "Permen Mint", "Perlengkapan Mandi",
+            "Gantungan Kunci", "Dompet Kosong", "Kunci Mobil", "Remote TV", "Penyapu Lantai",
+            "Pel Lantai", "Kemoceng", "Baskom Plastik", "Ember", "Sendok Sayur",
+            "Sutil Wajan", "Panci", "Talenan", "Pisau Dapur Tumpul", "Lampu Mati",
+            "Senter Habis Baterai", "Obeng Plus", "Obeng Minus", "Tang", "Cutter",
+            "Lakban", "Solasi", "Stapler", "Isi Stapler", "Klip Kertas",
+            "Paper Clip", "Binder Clip", "Sticky Notes", "Pengharum Ruangan", "Pengharum Mobil",
+            "Pengharum Toilet", "Pengharum Kulkas", "Tikus Kantor", "Tiket Konser",
+            "Kardus Handphone", "Kardus Sepatu", "Kardus Mie Instan", "Kardus Aqua", "Kardus Susu"
+        ];
+        
+        // Nomor WhatsApp
+        const agasNumber = '6285174135459';
+
+        // Status klik WhatsApp
+        let whatsappClickedOnce = false;
+        
+        // Fungsi untuk menutup pop-up
+        function closePopup() {
+            const popup = document.getElementById('welcomePopup');
+            popup.classList.add('hidden');
+        }
+
+        // Fungsi untuk mengecek khodam
+        function cekKhodam() {
+            const namaInput = document.getElementById('namaInput');
+            const nama = namaInput.value.trim();
+            const hasilDiv = document.getElementById('hasil');
+            
+            if (nama === "") {
+                alert("Nama tidak boleh kosong ya, nanti khodamnya bingung!");
+                return;
+            }
+
+            hasilDiv.classList.remove('hidden');
+            hasilDiv.innerHTML = '<div class="loader"></div>';
+
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * daftarKhodam.length);
+                const khodamTerpilih = daftarKhodam[randomIndex];
+
+                hasilDiv.innerHTML = `
+                    <div id="hasil-teks">
+                        Khodam untuk nama <strong>${nama}</strong> adalah...
+                    </div>
+                    <div id="nama-khodam">${khodamTerpilih}</div>
+                    <button class="share-button" onclick="bagikanHasil('${nama}', '${khodamTerpilih}')">Bagikan Hasil!</button>
+                `;
+            }, 2000);
+        }
+
+        // Fungsi untuk membagikan hasil
+        function bagikanHasil(nama, khodam) {
+            const teks = `Khodam ${nama} adalah ${khodam}! Cek khodam iseng kamu di web ini.`;
+            const url = window.location.href;
+
+            if (navigator.share) {
+                // Menggunakan Web Share API untuk perangkat mobile
+                navigator.share({
+                    title: 'Cek Khodam Iseng',
+                    text: teks,
+                    url: url,
+                }).then(() => console.log('Berhasil membagikan'))
+                  .catch((error) => console.log('Gagal membagikan', error));
+            } else {
+                // Fallback jika Web Share API tidak didukung
+                alert(`Berikut hasilmu:\n\n"${teks}"\n\nSilakan salin dan bagikan secara manual.`);
+            }
+        }
+
+        // Fungsi untuk menampilkan Khodam Terbaik Hari Ini
+        function tampilkanKhodamTerbaik() {
+            const randomIndex = Math.floor(Math.random() * daftarKhodam.length);
+            const khodamTerbaik = daftarKhodam[randomIndex];
+            document.getElementById('khodamTerbaik').innerText = khodamTerbaik;
+        }
+
+        // Fungsi untuk menampilkan semua khodam
+        function tampilkanDaftarKhodam() {
+            const daftarUl = document.getElementById('daftarKhodam').querySelector('ul');
+            daftarKhodam.forEach(khodam => {
+                const li = document.createElement('li');
+                li.textContent = khodam;
+                daftarUl.appendChild(li);
+            });
+        }
+
+        // Fungsi untuk mengelola klik tombol WhatsApp
+        function toggleWhatsapp() {
+            const whatsappText = document.getElementById('whatsappText');
+            if (whatsappClickedOnce) {
+                // Jika sudah diklik sekali, arahkan ke chat WhatsApp
+                window.location.href = `https://wa.me/${agasNumber}`;
+            } else {
+                // Jika baru pertama kali diklik, tampilkan nomornya
+                whatsappText.textContent = agasNumber;
+                whatsappText.classList.add('visible');
+                whatsappClickedOnce = true;
+                
+                // Atur ulang status setelah beberapa detik jika tidak diklik lagi
+                setTimeout(() => {
+                    whatsappText.classList.remove('visible');
+                    whatsappClickedOnce = false;
+                }, 5000);
+            }
+        }
+
+        // Jalankan fungsi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            tampilkanKhodamTerbaik();
+            tampilkanDaftarKhodam();
+        });
+    </script>
+
+</body>
+</html>
